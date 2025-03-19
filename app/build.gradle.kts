@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.jhuo.taskmanger"
+    namespace = "com.jhuo.taskmanager"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.jhuo.taskmanger"
+        applicationId = "com.jhuo.taskmanager"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

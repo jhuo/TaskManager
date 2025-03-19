@@ -1,4 +1,4 @@
-package com.jhuo.taskmanger
+package com.jhuo.taskmanager
 
 import org.junit.Test
 
