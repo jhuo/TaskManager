@@ -1,15 +1,13 @@
 package com.jhuo.taskmanager.di
 
-import android.R.attr.level
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import com.jhuo.taskmanager.data.local.TokenManager
-import com.jhuo.taskmanager.data.remote.AuthApiService
-import com.jhuo.taskmanager.data.remote.AuthInterceptor
-import com.jhuo.taskmanager.data.remote.RefreshTokenApiService
-import com.jhuo.taskmanager.data.remote.TokenAuthenticator
+import com.jhuo.taskmanager.auth.data.remote.AuthApiService
+import com.jhuo.taskmanager.auth.data.remote.AuthInterceptor
+import com.jhuo.taskmanager.auth.data.remote.RefreshTokenApiService
+import com.jhuo.taskmanager.auth.data.remote.TokenAuthenticator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -96,12 +94,6 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
-    // Provide API key for refresh calls (replace with your actual key)
-    @Singleton
-    @Provides
-    @Named("ApiKey")
-    fun provideApiKey(): String = "AIzaSyA7sdREpS_iMUe-SPuJ9bJaa6sK1uEmjL4"
 
     @Provides
     @Singleton

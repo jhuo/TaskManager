@@ -1,9 +1,11 @@
 package com.jhuo.taskmanager
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,15 +14,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jhuo.taskmanager.presentation.Screen
-import com.jhuo.taskmanager.presentation.login.LoginScreen
-import com.jhuo.taskmanager.presentation.tasks.HomeScreen
 import com.jhuo.taskmanager.theme.TaskManagerTheme
-import com.jhuo.taskmanager.ui.auth.AuthViewModel
+import com.jhuo.taskmanager.auth.presentation.AuthViewModel
+import com.jhuo.taskmanager.auth.presentation.LoginScreen
+import com.jhuo.taskmanager.task_manager.presentation.Screen
+import com.jhuo.taskmanager.task_manager.presentation.ui.TaskManagerScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -45,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Screen.Home.route) {
-                        HomeScreen() // Your main task list screen
+                        TaskManagerScreen()
                     }
                 }
             }
