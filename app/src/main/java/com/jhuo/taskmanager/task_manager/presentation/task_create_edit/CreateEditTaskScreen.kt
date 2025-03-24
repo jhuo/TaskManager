@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -28,19 +27,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.jhuo.taskmanager.task_manager.presentation.task_create_edit.CreateEditTaskViewModel
 import com.jhuo.taskmanager.task_manager.presentation.task_create_edit.TaskCreateEditUiEvent
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEditTaskScreen(
@@ -48,21 +44,16 @@ fun CreateEditTaskScreen(
     viewModel: CreateEditTaskViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    var showDatePicker by remember { mutableStateOf(false) }
-    var isDueDateEnabled by remember { mutableStateOf(state.task.dueDate?.isNotEmpty()) }
     val snackbarHostState = remember { SnackbarHostState() }
+    var selectedDate by remember { mutableStateOf(state.task.dueDate) }
 
-    // Handle UI events like navigation and errors
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
                 TaskCreateEditUiEvent.Navigate.TaskList -> navController.navigateUp()
                 TaskCreateEditUiEvent.ButtonClick.Save -> navController.navigateUp()
                 is TaskCreateEditUiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(event.message)
-                is TaskCreateEditUiEvent.Input.ChangeStatus -> TODO()
-                is TaskCreateEditUiEvent.Input.EnterDescription -> TODO()
-                is TaskCreateEditUiEvent.Input.EnterName -> TODO()
-                is TaskCreateEditUiEvent.Input.EnterDueDate -> TODO()
+                else -> {}
             }
         }
     }
@@ -70,7 +61,7 @@ fun CreateEditTaskScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Create Task") },
+                title = { Text("Task Details") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -135,43 +126,18 @@ fun CreateEditTaskScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-//
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text("Due date", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-//                Switch(
-//                    checked = isDueDateEnabled,
-//                    onCheckedChange = { isDueDateEnabled = it }
-//                )
-//            }
-//
-//            if (isDueDateEnabled) {
-//                Spacer(modifier = Modifier.height(8.dp))
-//                Button(
-//                    onClick = { showDatePicker = true },
-//                    modifier = Modifier.fillMaxWidth()
-//                ) {
-//                    Text(state.task.dueDate.ifEmpty { "Select Due Date" })
-//                }
-//            }
-//
-//            if (showDatePicker) {
-//
-//            }
 
             DueDatePicker(
                 context = LocalContext.current,
-                selectedDate = state.task.dueDate,
+                selectedDate = selectedDate,
                 onDateSelected = { date ->
+                    selectedDate = date
                     viewModel.onEvent(TaskCreateEditUiEvent.Input.EnterDueDate(date))
                 },
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Create Task Button (Disable if fields are empty)
             Button(
                 onClick = { viewModel.onEvent(TaskCreateEditUiEvent.ButtonClick.Save) },
                 enabled = state.nameError == null && state.descriptionError == null &&

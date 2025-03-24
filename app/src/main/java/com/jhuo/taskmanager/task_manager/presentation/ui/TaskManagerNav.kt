@@ -12,13 +12,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.jhuo.taskmanager.Screen
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskManagerNav() {
     val navController = rememberNavController()
-
     NavHost(navController = navController, startDestination = Screen.TaskList.route) {
-        composable(Screen.TaskList.route) {
+        composable(Screen.TaskList.route) { backStackEntry ->
             TaskListScreen(
                 onNavToCreateEditScreen = { taskId ->
                     navController.navigate(Screen.TaskCreateEdit.route + "?taskId=${taskId}")
@@ -35,7 +33,7 @@ fun TaskManagerNav() {
                     defaultValue = -1
                 }
             ),
-        ) {
+        ) { backStackEntry ->
             CreateEditTaskScreen(navController)
         }
     }

@@ -70,8 +70,8 @@ class CreateEditTaskViewModel @Inject constructor(
                             } else {
                                 taskRepository.createTask(
                                     _state.value.task.copy(
-                                    createdAt = System.currentTimeMillis().toString(),
-                                    id = null
+                                        createdAt = System.currentTimeMillis().toString(),
+                                        id = null,
                                     )
                                 )
                             }
@@ -125,7 +125,13 @@ class CreateEditTaskViewModel @Inject constructor(
                 }
             }
 
-            is Input.EnterDueDate -> TODO()
+            is Input.EnterDueDate -> {
+                _state.update { currentState ->
+                    currentState.copy(
+                        task = currentState.task.copy(dueDate = event.dueDate),
+                    )
+                }
+            }
         }
     }
 }

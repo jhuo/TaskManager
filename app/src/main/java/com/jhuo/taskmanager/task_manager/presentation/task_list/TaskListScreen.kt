@@ -1,5 +1,4 @@
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.R.id.message
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,9 +9,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,8 +31,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jhuo.taskmanager.task_manager.presentation.task_list.TaskListEvent
 import com.jhuo.taskmanager.task_manager.presentation.task_list.TaskViewModel
 import com.jhuo.taskmanager.task_manager.presentation.ui.component.TaskItem
+import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListScreen(
@@ -40,6 +42,7 @@ fun TaskListScreen(
     val state by viewModel.state.collectAsState()
     var expandedTaskId by remember { mutableIntStateOf(-1) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(TaskListEvent.LoadTasks)
@@ -56,9 +59,12 @@ fun TaskListScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
+            FloatingActionButton(
+                onClick = {
                 onNavToCreateEditScreen("")
-            }) {
+                },
+                containerColor = MaterialTheme.colorScheme.primary
+                ) {
                 Icon(Icons.Default.Add, "Create Task")
             }
         },
@@ -69,7 +75,7 @@ fun TaskListScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("TaskFlow")
+                        Text("Task List")
                     }
                 })
         }
@@ -93,7 +99,18 @@ fun TaskListScreen(
                             viewModel.onEvent(
                                 TaskListEvent.ButtonClick.UpdateTaskStatus(task, newStatus))
                         },
-                        onDelete = { viewModel.onEvent(TaskListEvent.ButtonClick.DeleteTask(task)) },
+                        onDelete = {
+                            viewModel.onEvent(TaskListEvent.ButtonClick.DeleteTask(task))
+                            scope.launch {
+                                val undo = snackbarHostState.showSnackbar(
+                                    message = "Task has been deleted",
+                                    actionLabel = "Undo"
+                                )
+                                if(undo == SnackbarResult.ActionPerformed){
+                                    viewModel.onEvent(TaskListEvent.ButtonClick.UndoDelete)
+                                }
+                            }
+                        },
                         onEdit = {
                             viewModel.onEvent(TaskListEvent.ButtonClick.EditTask(task))
                             onNavToCreateEditScreen(task.id.toString())

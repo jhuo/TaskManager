@@ -5,7 +5,6 @@ import com.jhuo.taskmanager.task_manager.data.local.dao.TaskDao
 import com.jhuo.taskmanager.task_manager.data.mappers.toLocalEntity
 import com.jhuo.taskmanager.task_manager.data.mappers.toTaskRequest
 import com.jhuo.taskmanager.task_manager.data.mappers.toTaskUI
-import com.jhuo.taskmanager.task_manager.data.mappers.toUpdateStatusMap
 import com.jhuo.taskmanager.task_manager.data.remote.TaskApiService
 import com.jhuo.taskmanager.task_manager.data.remote.util.Resource
 import com.jhuo.taskmanager.task_manager.domain.model.Task
@@ -57,54 +56,6 @@ class TaskRepositoryImpl @Inject constructor(
 
     }
 
-//    override suspend fun getTasksFromRemote(): Result<List<Task>> {
-//        try {
-//            refreshRoomCache()
-//        }catch (e: Exception){
-//            when(e){
-//                is UnknownHostException, is ConnectException, is HttpException -> {
-//                    Log.e("HTTP","Error: No data from Remote")
-//                    if(isCacheEmpty()){
-//                        Log.e("Cache","Error: No data from local Room cache")
-//                        throw Exception("Error: Device offline and\nno data from local Room cache")
-//                    }
-//                }else -> throw e
-//            }
-//        }
-//    }
-
-//    private suspend fun refreshRoomCache() {
-//        val remoteBooks = api.getTasks()
-//        dao.insertTasks(remoteBooks.map { it.toLocalEntity() })
-//    }
-//
-//    private fun isCacheEmpty(): Boolean {
-//        return dao.getAllTasks().isEmpty()
-//    }
-
-
-//    override suspend fun syncTasks() {
-//        return try {
-//            val response = taskApiService.getTasks()
-//            if (response.isSuccessful) {
-//                response.body()?.let { tasks ->
-//                    val entities = tasks.map { it.toEntity() }
-//                    taskDao.clearTasks()
-//                    taskDao.insertTasks(entities)
-//                }
-//                Result.success(taskDao.getTasks().map { it.toTaskUI() })
-//            } else {
-//                Result.failure(handleHttpError(response.code()))
-//            }
-//        } catch (e: IOException) {
-//            Result.failure(Exception("Network error: Check your internet connection."))
-//        } catch (e: HttpException) {
-//            Result.failure(Exception("Server error: ${e.message()}"))
-//        } catch (e: Exception) {
-//            Result.failure(Exception("Unknown error: ${e.localizedMessage}"))
-//        }
-//    }
-
     override suspend fun createTask(task: Task): Resource<Task> {
         return try {
             val response = api.createTask(task.toTaskRequest())
@@ -126,30 +77,9 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateTaskStatus(task: Task): Resource<Task> {
-        return try {
-            val response = api.updateTask(task.id!!, task.toUpdateStatusMap())
-            if (response.isSuccessful) {
-                response.body()?.let { updatedTask ->
-                    val updatedTaskEntity = updatedTask.toLocalEntity()
-                    dao.insertTask(updatedTaskEntity)
-                    Resource.Success(updatedTaskEntity.toTaskUI())
-                } ?:  Resource.Error("Empty response")
-            } else {
-                Resource.Error(handleHttpError(response.code()))
-            }
-        } catch (e: IOException) {
-            Resource.Error("Network error: Check your internet connection.")
-        } catch (e: HttpException) {
-            Resource.Error("Server error: ${e.message()}")
-        } catch (e: Exception) {
-            Resource.Error("Unknown error: ${e.localizedMessage}")
-        }
-    }
-
     override suspend fun updateTask(task: Task): Resource<Task> {
         return try {
-            val response = api.updateTask(task.id!!, task.toUpdateStatusMap())
+            val response = api.updateTask(task.id!!, task.toTaskRequest())
             if (response.isSuccessful) {
                 response.body()?.let { updatedTask ->
                     val updatedTaskEntity = updatedTask.toLocalEntity()
@@ -162,9 +92,9 @@ class TaskRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             Resource.Error("Network error: Check your internet connection.")
         } catch (e: HttpException) {
-            Resource.Error("Server error: ${e.message()}")
+            Resource.Error("Server error")
         } catch (e: Exception) {
-            Resource.Error("Unknown error: ${e.localizedMessage}")
+            Resource.Error("Unknown error")
         }
     }
 
@@ -173,8 +103,8 @@ class TaskRepositoryImpl @Inject constructor(
             val response = api.deleteTask(task.id!!)
             if (response.isSuccessful) {
                 dao.deleteTaskById(task.id)
-                Log.i("API_DELETE","Successful deleted")
-                Resource.Success(data = null, message = "Successful deleted")
+                Log.i("API_DELETE","Task deleted successfully")
+                Resource.Success(data = null, message = "Task deleted successfully")
             } else {
                 Resource.Error(handleHttpError(response.code()))
             }

@@ -55,12 +55,12 @@ fun TaskItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit",
-                    modifier = Modifier.clickable(onClick = onEdit)
+                    modifier = Modifier.clickable(onClick = onEdit).padding(horizontal = 8.dp)
                 )
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
-                    modifier = Modifier.clickable(onClick = onDelete)
+                    modifier = Modifier.clickable(onClick = onDelete).padding(horizontal = 8.dp)
                 )
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
@@ -70,11 +70,11 @@ fun TaskItem(
             }
 
             if (expanded) {
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(4.dp))
                 Text(task.description, style = MaterialTheme.typography.bodyMedium)
 
                 task.dueDate?.let {
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(4.dp))
                     Text("Due: $it", style = MaterialTheme.typography.labelSmall)
                 }
 
@@ -99,10 +99,7 @@ fun TaskItem(
 
 @Composable
 fun StatusIcon(status: TaskStatus) {
-    Box(
-        modifier = Modifier
-            .padding(8.dp)
-    ) {
+    Box (modifier = Modifier.padding(4.dp)) {
         Icon(when (status) {
             TaskStatus.PENDING -> Icons.Default.PlayArrow
             TaskStatus.IN_PROGRESS -> Icons.Default.DateRange

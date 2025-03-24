@@ -1,12 +1,9 @@
 package com.jhuo.taskmanager.task_manager.presentation.task_list
 
-import android.R.attr.name
-import android.R.id.message
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jhuo.taskmanager.auth.presentation.AuthUiEvent
 import com.jhuo.taskmanager.task_manager.data.remote.util.Resource
 import com.jhuo.taskmanager.task_manager.domain.model.Task
 import com.jhuo.taskmanager.task_manager.domain.repository.TaskRepository
@@ -15,11 +12,8 @@ import com.jhuo.taskmanager.task_manager.domain.util.TaskOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -39,14 +33,13 @@ class TaskViewModel @Inject constructor(
     private val _uiEvent = Channel<TaskListEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    private var undoTask: Task? = null
+    private var undoTaskItem: Task? = null
     private var getTaskItemJob: Job? = null
 
     init {
         onEvent(TaskListEvent.LoadTasks)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onEvent(event: TaskListEvent) {
         when (event) {
             is TaskListEvent.LoadTasks -> getAllTaskItems()
@@ -57,10 +50,12 @@ class TaskViewModel @Inject constructor(
             }
             is TaskListEvent.ButtonClick.UpdateTaskStatus -> updateTaskStatus(event)
             is TaskListEvent.ButtonClick.DeleteTask -> deleteTask(event)
-            is TaskListEvent.ButtonClick.Sort -> TODO()
-            is TaskListEvent.ButtonClick.UndoDelete -> TODO()
-            is TaskListEvent.Navigate.CreateEdit -> {
-
+            is TaskListEvent.ButtonClick.UndoDelete -> {
+                viewModelScope.launch {
+                    repository.createTask(undoTaskItem ?: return@launch)
+                    undoTaskItem = null
+                    getAllTaskItems()
+                }
             }
             is TaskListEvent.ButtonClick.EditTask -> {
                 viewModelScope.launch {
@@ -68,8 +63,7 @@ class TaskViewModel @Inject constructor(
                 }
             }
 
-            TaskListEvent.Navigate.Login -> TODO()
-            is TaskListEvent.ShowSnackBar -> TODO()
+            else -> {}
         }
     }
 
@@ -116,7 +110,7 @@ class TaskViewModel @Inject constructor(
                 is Resource.Loading -> _state.update { it.copy(isLoading = true) }
                 is Resource.Success -> {
                     getAllTaskItems()
-                    _uiEvent.send(TaskListEvent.ShowSnackBar(result.message ?: "Delete successfully"))
+                    undoTaskItem = event.task
                     _state.update { it.copy(isLoading = false) }
                 }
             }
@@ -127,7 +121,7 @@ class TaskViewModel @Inject constructor(
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val updatedTask = event.task.copy(status = event.newStatus)
-            val result = repository.updateTaskStatus(updatedTask)
+            val result = repository.updateTask(updatedTask)
             when (result) {
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false) }

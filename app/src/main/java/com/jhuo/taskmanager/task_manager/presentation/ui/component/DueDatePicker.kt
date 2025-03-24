@@ -18,7 +18,7 @@ import java.util.Locale
 fun DueDatePicker(
     context: Context,
     selectedDate: String?,
-    onDateSelected: (String) -> Unit,
+    onDateSelected: (String) -> Unit
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     var isDueDateEnabled by remember { mutableStateOf(!selectedDate.isNullOrEmpty()) }

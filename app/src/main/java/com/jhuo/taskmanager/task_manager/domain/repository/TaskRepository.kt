@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface TaskRepository {
     suspend fun getAllTasks(forceFetchFromRemote: Boolean = false): Flow<Resource<List<Task>>>
     suspend fun createTask(task: Task): Resource<Task>
-    suspend fun updateTaskStatus(task: Task): Resource<Task>
     suspend fun deleteTask(task: Task): Resource<Task>
     suspend fun getSingleTaskById(id: Int): Resource<Task?>
     suspend fun updateTask(task: Task): Resource<Task>

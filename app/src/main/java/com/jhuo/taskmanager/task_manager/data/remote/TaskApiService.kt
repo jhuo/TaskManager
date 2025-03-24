@@ -28,7 +28,7 @@ interface TaskApiService {
     @PATCH("/api/tasks/{id}")
     suspend fun updateTask(
         @Path("id") id: Int,
-        @Body updateRequest: Map<String, String>
+        @Body task: TaskRequest
     ): Response<TaskDto>
 
     @DELETE("/api/tasks/{id}")

@@ -15,7 +15,7 @@ data class TaskCreateUpdateState(
         updatedAt = "",
         id = null
     ),
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val error: String? = null,
     val nameError: String? = null,
     val descriptionError: String? = null
