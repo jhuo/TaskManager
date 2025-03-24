@@ -44,7 +44,6 @@ fun LoginScreen(
                 is AuthUiEvent.ShowSnackBar -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
-
                 else -> {}
             }
         }

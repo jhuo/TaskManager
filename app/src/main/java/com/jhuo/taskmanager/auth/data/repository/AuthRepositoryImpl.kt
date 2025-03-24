@@ -1,5 +1,6 @@
 package com.jhuo.taskmanager.auth.data.repository
 
+import android.util.Log.e
 import com.jhuo.taskmanager.auth.data.local.TokenManager
 import com.jhuo.taskmanager.auth.data.remote.AuthApiService
 import com.jhuo.taskmanager.auth.data.remote.RefreshTokenApiService
@@ -20,8 +21,8 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun login(email: String, password: String): AuthResult<Unit> {
         return try {
-            val response = authApiService.login(email, password)//login("jerry08huo+1@yahoo.com", "Test@1234")
-            tokenManager.saveAuthTokens(response.idToken, response.refreshToken)
+            val response = authApiService.login("jerry08huo+1@yahoo.com", "Test@1234") //login(email, password)//
+            tokenManager.saveAuthTokens(response.idToken, response.refreshToken, response.expiresIn?.toLong())
             AuthResult.Authorized()
         } catch(e: HttpException) {
             when(e.code()) {
@@ -46,17 +47,24 @@ class AuthRepositoryImpl @Inject constructor(
             val response = refreshTokenApiService.refreshToken( refreshTokenValue)
             if (response.isSuccessful) {
                 response.body()?.let { refreshResponse ->
-                    refreshResponse.idToken?.let { idToken ->
-                        refreshResponse.refreshToken?.let { newRefreshToken ->
-                            refreshResponse.expiresIn?.let { expiresIn->
-                                tokenManager.saveAuthTokens(idToken, newRefreshToken)
-                            }
-                        }
+                    val newAccessToken = refreshResponse.idToken
+                    val newRefreshToken = refreshResponse.refreshToken
+                    val expiresIn = refreshResponse.expiresIn?.toLong()
+                    if (newAccessToken != null && newRefreshToken != null && expiresIn != null) {
+                        tokenManager.saveAuthTokens(newAccessToken, newRefreshToken, expiresIn)
+                        emit(Resource.Success(refreshResponse))
+                    } else {
+                        emit(Resource.Error("Invalid refresh response"))
                     }
-                    emit(Resource.Success(refreshResponse))
                 } ?: emit(Resource.Error("Empty response"))
             } else {
-                emit(Resource.Error("Http Error"))
+                when (response.code()) {
+                    401, 403 -> {
+                        tokenManager.clearTokens()
+                        emit(Resource.Error("Unauthorized: Refresh token expired"))
+                    }
+                    else -> emit(Resource.Error("HTTP Error: ${response.code()}"))
+                }
             }
         } catch (e: Exception) {
             emit(Resource.Error(e.message.toString()))

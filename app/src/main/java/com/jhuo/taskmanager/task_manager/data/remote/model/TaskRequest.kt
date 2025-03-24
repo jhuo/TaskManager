@@ -5,6 +5,6 @@ import com.google.gson.annotations.SerializedName
 data class TaskRequest(
     val name: String,
     val description: String,
-    val status: String = "pending",
+    val status: String,
     @SerializedName("due_date") val dueDate: String? = null
 )

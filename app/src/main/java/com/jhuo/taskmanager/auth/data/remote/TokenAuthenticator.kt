@@ -13,45 +13,24 @@ class TokenAuthenticator @Inject constructor(
     private val refreshTokenApiService: RefreshTokenApiService,
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
-        // Prevent infinite loops by checking the number of prior attempts.
-        if (responseCount(response) >= 3) return null
+        val refreshToken = runBlocking { tokenManager.getRefreshToken() } ?: return null
+        val newTokens = runBlocking {
+            val refreshResponse = refreshTokenApiService.refreshToken(refreshToken)
+            if (refreshResponse.isSuccessful) refreshResponse.body() else null
+        } ?: return null
 
-        val currentRefreshToken = tokenManager.getRefreshToken() ?: return null
+        val newAccessToken = newTokens.idToken
+        val newRefreshToken = newTokens.refreshToken
+        val expiresIn = newTokens.expiresIn?.toLong()
 
-        return try {
-            val refreshResponse = runBlocking {
-                refreshTokenApiService.refreshToken(
-                    refreshToken = currentRefreshToken,
-                )
-            }
-            if (refreshResponse.isSuccessful) {
-                val newTokens = refreshResponse.body()
-                if (newTokens?.idToken != null && newTokens.refreshToken != null && newTokens.expiresIn != null) {
-                    // Update stored tokens
-                    tokenManager.saveAuthTokens(newTokens.idToken, newTokens.refreshToken)
-                    // Retry the original request with the new token
-                    response.request.newBuilder()
-                        .header("Authorization", "Bearer ${newTokens.idToken}")
-                        .build()
-                } else {
-                    null
-                }
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        return if (newAccessToken != null && newRefreshToken != null && expiresIn != null) {
+            tokenManager.saveAuthTokens(newAccessToken, newRefreshToken, expiresIn)
+            response.request.newBuilder()
+                .header("Authorization", "Bearer $newAccessToken")
+                .build()
+        } else {
+            tokenManager.clearTokens()
             null
         }
-    }
-
-    private fun responseCount(response: Response): Int {
-        var count = 1
-        var priorResponse = response.priorResponse
-        while (priorResponse != null) {
-            count++
-            priorResponse = priorResponse.priorResponse
-        }
-        return count
     }
 }

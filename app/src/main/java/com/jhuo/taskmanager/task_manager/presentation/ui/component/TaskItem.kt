@@ -1,5 +1,7 @@
 package com.jhuo.taskmanager.task_manager.presentation.ui.component
 
+import StatusSelector
+import android.R.attr.contentDescription
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,7 +38,8 @@ fun TaskItem(
     expanded: Boolean,
     onExpand: () -> Unit,
     onStatusChange: (TaskStatus) -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -43,8 +51,22 @@ fun TaskItem(
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 StatusIcon(status = task.status)
-                Spacer(modifier = Modifier.weight(1f))
-                Text(task.name)
+                Text(task.name, Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit",
+                    modifier = Modifier.clickable(onClick = onEdit)
+                )
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    modifier = Modifier.clickable(onClick = onDelete)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    modifier = Modifier.clickable(onClick = onExpand)
+                )
             }
 
             if (expanded) {
@@ -56,10 +78,13 @@ fun TaskItem(
                     Text("Due: $it", style = MaterialTheme.typography.labelSmall)
                 }
 
-                Row(modifier = Modifier.padding(top = 8.dp)) {
+
+                Row(modifier = Modifier.padding(top = 12.dp)) {
                     StatusSelector(
                         selectedStatus = task.status,
-                        onStatusChange = onStatusChange
+                        onStatusSelected = { status ->
+                            onStatusChange(status)
+                        }
                     )
                     Spacer(Modifier.weight(1f))
                     IconButton(onClick = onDelete) {
@@ -71,16 +96,16 @@ fun TaskItem(
     }
 }
 
+
 @Composable
 fun StatusIcon(status: TaskStatus) {
-
     Box(
         modifier = Modifier
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .padding(8.dp)
     ) {
         Icon(when (status) {
-            TaskStatus.PENDING -> Icons.Default.Check
-            TaskStatus.IN_PROGRESS -> Icons.Default.PlayArrow
-            TaskStatus.COMPLETED -> Icons.Default.PlayArrow}, "Status Icon")
+            TaskStatus.PENDING -> Icons.Default.PlayArrow
+            TaskStatus.IN_PROGRESS -> Icons.Default.DateRange
+            TaskStatus.COMPLETED -> Icons.Default.Check}, "Status Icon")
         }
 }

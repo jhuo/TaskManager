@@ -17,8 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.jhuo.taskmanager.theme.TaskManagerTheme
 import com.jhuo.taskmanager.auth.presentation.AuthViewModel
 import com.jhuo.taskmanager.auth.presentation.LoginScreen
-import com.jhuo.taskmanager.task_manager.presentation.Screen
-import com.jhuo.taskmanager.task_manager.presentation.ui.TaskManagerScreen
+import com.jhuo.taskmanager.task_manager.presentation.ui.TaskManagerNav
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -40,15 +39,15 @@ class MainActivity : ComponentActivity() {
                         LoginScreen(
                             viewModel = authViewModel,
                             onLoginSuccess = {
-                                navController.navigate(Screen.Home.route) {
+                                navController.navigate(Screen.TaskList.route) {
                                     popUpTo(Screen.Login.route) { inclusive = true }
                                 }
                             }
                         )
                     }
 
-                    composable(Screen.Home.route) {
-                        TaskManagerScreen()
+                    composable(Screen.TaskList.route) {
+                        TaskManagerNav()
                     }
                 }
             }

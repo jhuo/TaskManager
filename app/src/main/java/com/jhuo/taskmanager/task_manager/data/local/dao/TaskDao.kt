@@ -7,12 +7,11 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.jhuo.taskmanager.task_manager.data.local.entity.TaskEntity
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
     @Query("SELECT * FROM tasks")
-    fun getTasks(): Flow<List<TaskEntity>>
+    suspend fun getAllTasks(): List<TaskEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTasks(tasks: List<TaskEntity>)
@@ -31,4 +30,7 @@ interface TaskDao {
 
     @Query("DELETE FROM tasks")
     suspend fun clearTasks()
+
+    @Query("SELECT *  FROM tasks WHERE id = :id")
+    suspend fun getSingleTaskById(id: Int): TaskEntity?
 }

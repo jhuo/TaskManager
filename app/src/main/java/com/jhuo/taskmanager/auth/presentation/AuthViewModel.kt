@@ -4,14 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jhuo.taskmanager.auth.data.remote.model.AuthResult
 import com.jhuo.taskmanager.auth.domain.repository.AuthRepository
+import com.jhuo.taskmanager.auth.presentation.util.AuthStrings.AUTH_INVALID_ERROR
+import com.jhuo.taskmanager.auth.presentation.util.AuthStrings.AUTH_UNAUTHORIZED_ERROR
+import com.jhuo.taskmanager.auth.presentation.util.AuthStrings.AUTH_UNKNOWN_ERROR
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -52,17 +53,17 @@ class AuthViewModel @Inject constructor(
             _state.update { it.copy(isLoading = false) }
             when(result) {
                 is AuthResult.Authorized -> _event.emit(AuthUiEvent.Navigate.Home)
-                is AuthResult.Unauthorized -> _event.emit(AuthUiEvent.ShowSnackBar("Unauthorized"))
-                is AuthResult.UnknownError -> _event.emit(AuthUiEvent.ShowSnackBar("Unknown error"))
-                is AuthResult.InvalidInput -> _event.emit(AuthUiEvent.ShowSnackBar("Invalid Email and Password"))
+                is AuthResult.Unauthorized -> _event.emit(AuthUiEvent.ShowSnackBar(AUTH_UNAUTHORIZED_ERROR))
+                is AuthResult.UnknownError -> _event.emit(AuthUiEvent.ShowSnackBar(AUTH_UNKNOWN_ERROR))
+                is AuthResult.InvalidInput -> _event.emit(AuthUiEvent.ShowSnackBar(AUTH_INVALID_ERROR))
             }
         }
     }
 
-
+//TODO
 //    // The refreshToken() method is available for background usage if needed.
 //    fun refreshToken() {
-//        authRepository.refreshToken().onEach { /* handle refresh result silently */ }
+//        authRepository.refreshToken().onEach { }
 //            .launchIn(viewModelScope)
 //    }
 }

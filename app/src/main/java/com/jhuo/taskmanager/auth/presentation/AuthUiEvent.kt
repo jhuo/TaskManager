@@ -9,10 +9,8 @@ sealed class AuthUiEvent {
     sealed class ButtonClick {
         data object SignIn: AuthUiEvent()
     }
-
     sealed class Navigate {
         data object Home: AuthUiEvent()
     }
-
     data class ShowSnackBar(val message: String): AuthUiEvent()
 }
