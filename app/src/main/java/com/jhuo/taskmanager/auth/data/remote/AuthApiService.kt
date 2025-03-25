@@ -10,8 +10,8 @@ interface AuthApiService {
         @FormUrlEncoded
         @POST("v1/accounts:signInWithPassword")
         suspend fun login(
-            @Field("email") email: String, //= "jerry08huo+1@yahoo.com",
-            @Field("password") password: String, //= "Test@1234",
+            @Field("email") email: String,
+            @Field("password") password: String,
             @Field("returnSecureToken") returnSecureToken: Boolean = true,
             @Query("key") apiKey: String = "AIzaSyA7sdREpS_iMUe-SPuJ9bJaa6sK1uEmjL4",
         ): AuthResponse
