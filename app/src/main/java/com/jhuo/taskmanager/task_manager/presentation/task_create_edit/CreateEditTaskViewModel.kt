@@ -65,7 +65,7 @@ class CreateEditTaskViewModel @Inject constructor(
                     val currentState = _state.value
                     if (currentState.nameError == null && currentState.descriptionError == null){
                         try{
-                            if(currentTaskId != null) {
+                            if (currentTaskId != null) {
                                 taskRepository.updateTask(_state.value.task)
                             } else {
                                 taskRepository.createTask(

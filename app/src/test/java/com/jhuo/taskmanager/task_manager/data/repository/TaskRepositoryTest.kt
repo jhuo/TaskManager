@@ -44,10 +44,10 @@ class TaskRepositoryTest {
                 name = "Task 1",
                 description = "Description 1",
                 status = "pending",
-                dueDate = "Mar 27 2025",
+                dueDate = "2025-03-24T00:00:00.000Z",
                 createdBy = "Jerry Huo",
-                createdAt = "2024-04-01",
-                updatedAt = "2024-04-10",
+                createdAt = "2021-03-24T00:00:00.000Z",
+                updatedAt = "2022-03-24T00:00:00.000Z",
                 id = 1
             )
         )
@@ -90,10 +90,10 @@ class TaskRepositoryTest {
                 name = "Task 1",
                 description = "Description 1",
                 status = "pending",
-                dueDate = "Mar 27 2025",
+                dueDate = "2025-03-24T00:00:00.000Z",
                 createdBy = "Jerry Huo",
-                createdAt = "2024-04-01",
-                updatedAt = "2024-04-10",
+                createdAt = "2021-03-24T00:00:00.000Z",
+                updatedAt = "2022-03-24T00:00:00.000Z",
                 id = 1
             )
         )
@@ -115,10 +115,10 @@ class TaskRepositoryTest {
             name = "Task 1",
             description = "Description 1",
             status = "pending",
-            dueDate = "Mar 27 2025",
+            dueDate = "2025-03-24T00:00:00.000Z",
             createdBy = "Jerry Huo",
-            createdAt = "2024-04-01",
-            updatedAt = "2024-04-10",
+            createdAt = "2021-03-24T00:00:00.000Z",
+            updatedAt = "2022-03-24T00:00:00.000Z",
             id = 1
         )
         val taskRequest = remoteTask.toLocalEntity().toTaskUI().toTaskRequest()
@@ -142,10 +142,10 @@ class TaskRepositoryTest {
             name = "Task 1",
             description = "Description 1",
             status = TaskStatus.PENDING,
-            dueDate = "Mar 27 2025",
+            dueDate = "2025-03-24T00:00:00.000Z",
             createdBy = "Jerry Huo",
-            createdAt = "2024-04-01",
-            updatedAt = "2024-04-10",
+            createdAt = "2021-03-24T00:00:00.000Z",
+            updatedAt = "2022-03-24T00:00:00.000Z",
             id = 1
         )
         coEvery { api.createTask(any()) } throws IOException("Network error")
@@ -165,10 +165,10 @@ class TaskRepositoryTest {
             name = "Task 1",
             description = "Description 1",
             status = "pending",
-            dueDate = "Mar 27 2025",
+            dueDate = "2025-03-24T00:00:00.000Z",
             createdBy = "Jerry Huo",
-            createdAt = "2024-04-01",
-            updatedAt = "2024-04-10",
+            createdAt = "2021-03-24T00:00:00.000Z",
+            updatedAt = "2022-03-24T00:00:00.000Z",
             id = 1
         )
         val taskRequest = remoteTask.toLocalEntity().toTaskUI().toTaskRequest()
@@ -192,7 +192,7 @@ class TaskRepositoryTest {
             name = "Task 1",
             description = "Description 1",
             status = TaskStatus.PENDING,
-            dueDate = "Mar 27 2025",
+            dueDate = "2025 Mar 27 at 00:00",
             createdBy = "Jerry Huo",
             createdAt = "2024-04-01",
             updatedAt = "2024-04-10",
@@ -217,7 +217,7 @@ class TaskRepositoryTest {
             name = "Task 1",
             description = "Description 1",
             status = TaskStatus.PENDING,
-            dueDate = "Mar 27 2025",
+            dueDate = "2025 Mar 27 at 00:00",
             createdBy = "Jerry Huo",
             createdAt = "2024-04-01",
             updatedAt = "2024-04-10",
@@ -240,10 +240,10 @@ class TaskRepositoryTest {
             name = "Task 1",
             description = "Description 1",
             status = "pending",
-            dueDate = "Mar 27 2025",
+            dueDate = "2025-03-24T00:00:00.000Z",
             createdBy = "Jerry Huo",
-            createdAt = "2024-04-01",
-            updatedAt = "2024-04-10",
+            createdAt = "2021-03-24T00:00:00.000Z",
+            updatedAt = "2022-03-24T00:00:00.000Z",
             id = 1
         )
         coEvery { dao.getSingleTaskById(remoteTask.id) } returns remoteTask.toLocalEntity()

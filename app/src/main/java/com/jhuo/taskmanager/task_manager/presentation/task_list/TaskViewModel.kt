@@ -48,6 +48,7 @@ class TaskViewModel @Inject constructor(
                     _uiEvent.send(TaskListEvent.Navigate.CreateEdit())
                 }
             }
+
             is TaskListEvent.ButtonClick.UpdateTaskStatus -> updateTaskStatus(event)
             is TaskListEvent.ButtonClick.DeleteTask -> deleteTask(event)
             is TaskListEvent.ButtonClick.UndoDelete -> {
@@ -57,6 +58,7 @@ class TaskViewModel @Inject constructor(
                     getAllTaskItems()
                 }
             }
+
             is TaskListEvent.ButtonClick.EditTask -> {
                 viewModelScope.launch {
                     _uiEvent.send(TaskListEvent.Navigate.CreateEdit("?taskId=${event.task.id}"))
@@ -67,28 +69,27 @@ class TaskViewModel @Inject constructor(
         }
     }
 
-    fun getAllTaskItems(){
-        getTaskItemJob?.cancel()
-        getTaskItemJob = viewModelScope.launch {
-            val result = viewModelScope.launch {
-                _state.update { it.copy(isLoading = true) }
-                repository.getAllTasks().collectLatest { result ->
-                    when (result) {
-                        is Resource.Error -> {
-                            _state.update { it.copy(isLoading = false) }
-                            _uiEvent.send(TaskListEvent.ShowSnackBar("Failed to load tasks: ${result.message}"))
-                        }
+    fun getAllTaskItems() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            repository.getAllTasks().collectLatest { result ->
+                when (result) {
+                    is Resource.Error -> {
+                        _state.update { it.copy(isLoading = false) }
+                        _uiEvent.send(TaskListEvent.ShowSnackBar("Failed to load tasks: ${result.message}"))
+                    }
 
-                        is Resource.Loading -> {
-                            _state.update { it.copy(isLoading = true) }
-                        }
+                    is Resource.Loading -> {
+                        _state.update { it.copy(isLoading = true) }
+                    }
 
-                        is Resource.Success -> {
-                            result.data?.let { tasks ->
-                                _state.update { it.copy(
+                    is Resource.Success -> {
+                        result.data?.let { tasks ->
+                            _state.update {
+                                it.copy(
                                     taskList = tasks,
                                     isLoading = false
-                                ) }
+                                )
                             }
                         }
                     }
@@ -106,7 +107,6 @@ class TaskViewModel @Inject constructor(
                     _uiEvent.send(TaskListEvent.ShowSnackBar(result.message ?: "Can't delete it"))
                     _state.update { it.copy(isLoading = false) }
                 }
-
                 is Resource.Loading -> _state.update { it.copy(isLoading = true) }
                 is Resource.Success -> {
                     getAllTaskItems()

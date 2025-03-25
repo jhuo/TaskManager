@@ -1,4 +1,4 @@
-package com.jhuo.taskmanager.auth.data.local
+package com.jhuo.taskmanager.auth.data.repository
 
 import android.content.SharedPreferences
 import javax.inject.Inject

@@ -1,5 +1,3 @@
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +21,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,25 +32,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.jhuo.taskmanager.task_manager.presentation.task_create_edit.CreateEditTaskViewModel
 import com.jhuo.taskmanager.task_manager.presentation.task_create_edit.TaskCreateEditUiEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEditTaskScreen(
-    navController: NavController,
+    onNavigateBack: () -> Unit,
     viewModel: CreateEditTaskViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedDate by remember { mutableStateOf(state.task.dueDate) }
+    val nameError by remember(state.nameError) { derivedStateOf { state.nameError } }
+    val descriptionError by remember(state.descriptionError) { derivedStateOf { state.descriptionError } }
 
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
-                TaskCreateEditUiEvent.Navigate.TaskList -> navController.navigateUp()
-                TaskCreateEditUiEvent.ButtonClick.Save -> navController.navigateUp()
+                TaskCreateEditUiEvent.Navigate.TaskList -> onNavigateBack()
+                TaskCreateEditUiEvent.ButtonClick.Save -> onNavigateBack()
                 is TaskCreateEditUiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(event.message)
                 else -> {}
             }
@@ -63,7 +63,7 @@ fun CreateEditTaskScreen(
             TopAppBar(
                 title = { Text("Task Details") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { onNavigateBack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -76,8 +76,8 @@ fun CreateEditTaskScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            if (state.nameError != null) {
-                Text(text = state.nameError!!, color = Color.Red, fontSize = 12.sp)
+            if (nameError != null) {
+                Text(text = nameError!!, color = Color.Red, fontSize = 12.sp)
             }
 
             OutlinedTextField(
@@ -86,15 +86,15 @@ fun CreateEditTaskScreen(
                     viewModel.onEvent(TaskCreateEditUiEvent.Input.EnterName(it))
                 },
                 maxLines = 4,
-                isError = state.nameError != null,
+                isError = nameError != null,
                 label = { Text("Task Name") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (state.descriptionError != null) {
-                Text(text = state.descriptionError!!, color = Color.Red, fontSize = 12.sp)
+            if (descriptionError != null) {
+                Text(text = descriptionError!!, color = Color.Red, fontSize = 12.sp)
             }
 
             OutlinedTextField(
@@ -102,7 +102,7 @@ fun CreateEditTaskScreen(
                 onValueChange = {
                     viewModel.onEvent(TaskCreateEditUiEvent.Input.EnterDescription(it))
                 },
-                isError = state.nameError != null,
+                isError = nameError != null,
                 label = { Text("Description") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -140,7 +140,7 @@ fun CreateEditTaskScreen(
 
             Button(
                 onClick = { viewModel.onEvent(TaskCreateEditUiEvent.ButtonClick.Save) },
-                enabled = state.nameError == null && state.descriptionError == null &&
+                enabled = nameError == null && descriptionError == null &&
                         state.task.name.isNotEmpty() && state.task.description.isNotEmpty(),
                 modifier = Modifier.fillMaxWidth()
             ) {

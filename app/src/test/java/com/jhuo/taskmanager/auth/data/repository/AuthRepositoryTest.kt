@@ -1,6 +1,5 @@
 package com.jhuo.taskmanager.auth.data.repository
 
-import com.jhuo.taskmanager.auth.data.local.TokenManager
 import com.jhuo.taskmanager.auth.data.remote.AuthApiService
 import com.jhuo.taskmanager.auth.data.remote.RefreshTokenApiService
 import com.jhuo.taskmanager.auth.data.remote.model.AuthResponse

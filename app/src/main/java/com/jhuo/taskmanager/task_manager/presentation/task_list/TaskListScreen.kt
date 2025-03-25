@@ -1,16 +1,20 @@
-import android.R.id.message
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -19,8 +23,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -37,87 +42,101 @@ import kotlinx.coroutines.launch
 @Composable
 fun TaskListScreen(
     onNavToCreateEditScreen: (taskId: String) -> Unit,
+    onNavigateBackToLoginScreen: () -> Unit,
     viewModel: TaskViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    var expandedTaskId by remember { mutableIntStateOf(-1) }
+    val taskList by remember(state.taskList) { derivedStateOf { state.taskList } }
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(true) {
         viewModel.onEvent(TaskListEvent.LoadTasks)
+    }
+
+    LaunchedEffect(viewModel.uiEvent) {
         viewModel.uiEvent.collect { event ->
-            when (event) {
-                is TaskListEvent.ShowSnackBar -> {
-                    snackbarHostState.showSnackbar(event.message)
-                }
-                else -> {}
+            if (event is TaskListEvent.ShowSnackBar) {
+                snackbarHostState.showSnackbar(event.message)
             }
         }
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                onNavToCreateEditScreen("")
-                },
+                onClick = { onNavToCreateEditScreen("") },
                 containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                Icon(Icons.Default.Add, "Create Task")
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Create Task")
             }
         },
-        topBar = {
-            TopAppBar(
-                title = {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Task List")
-                    }
-                })
-        }
+        topBar = { TaskListTopBar(onNavigateBackToLoginScreen) }
     ) { padding ->
-        if (state.taskList.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "No tasks yet!", fontSize = 16.sp)
-                    Text(text = "Start by create a new task", fontSize = 12.sp)
-                }
-            }
-        } else {
-            LazyColumn(modifier = Modifier.padding(padding)) {
-                items(state.taskList.size) { index ->
-                    val task = state.taskList[index]
-                    TaskItem(
-                        task = task,
-                        expanded = expandedTaskId == task.id,
-                        onExpand = { expandedTaskId = if (expandedTaskId == task.id!!) -1 else task.id },
-                        onStatusChange = { newStatus ->
-                            viewModel.onEvent(
-                                TaskListEvent.ButtonClick.UpdateTaskStatus(task, newStatus))
-                        },
-                        onDelete = {
-                            viewModel.onEvent(TaskListEvent.ButtonClick.DeleteTask(task))
-                            scope.launch {
-                                val undo = snackbarHostState.showSnackbar(
-                                    message = "Task has been deleted",
-                                    actionLabel = "Undo"
-                                )
-                                if(undo == SnackbarResult.ActionPerformed){
-                                    viewModel.onEvent(TaskListEvent.ButtonClick.UndoDelete)
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (state.taskList.isEmpty()) {
+                    EmptyTaskMessage()
+            } else {
+                    LazyColumn(modifier = Modifier.padding(padding)) {
+                        items(taskList, key = { it.id!! }) { task ->
+                            var expanded by remember { mutableStateOf(false) }
+
+                            TaskItem(
+                                task = task,
+                                expanded = expanded,
+                                onExpand = { expanded = !expanded },
+                                onStatusChange = { newStatus ->
+                                    viewModel.onEvent(TaskListEvent.ButtonClick.UpdateTaskStatus(task, newStatus))
+                                },
+                                onDelete = {
+                                    viewModel.onEvent(TaskListEvent.ButtonClick.DeleteTask(task))
+                                    coroutineScope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        val undo = snackbarHostState.showSnackbar(
+                                            message = "Task has been deleted",
+                                            actionLabel = "Undo",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        if (undo == SnackbarResult.ActionPerformed) {
+                                            viewModel.onEvent(TaskListEvent.ButtonClick.UndoDelete)
+                                        }
+                                    }
+                                },
+                                onEdit = {
+                                    viewModel.onEvent(TaskListEvent.ButtonClick.EditTask(task))
+                                    onNavToCreateEditScreen(task.id?.toString() ?: "")
                                 }
-                            }
-                        },
-                        onEdit = {
-                            viewModel.onEvent(TaskListEvent.ButtonClick.EditTask(task))
-                            onNavToCreateEditScreen(task.id.toString())
+                            )
                         }
-                    )
+                    }
                 }
             }
+        }
+    }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TaskListTopBar(onNavigateBackToLoginScreen: () -> Unit) {
+    TopAppBar(
+        title = { Text("Task List") },
+        navigationIcon = {
+            IconButton(onClick = { onNavigateBackToLoginScreen() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            }
+        }
+    )
+}
+
+@Composable
+fun EmptyTaskMessage() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "No tasks yet!", fontSize = 16.sp)
+            Text(text = "Start by creating a new task", fontSize = 12.sp)
         }
     }
 }

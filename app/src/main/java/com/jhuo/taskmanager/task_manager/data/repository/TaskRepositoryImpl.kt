@@ -34,7 +34,7 @@ class TaskRepositoryImpl @Inject constructor(
                 }
             val tasksFromApi = try {
                 api.getTasks()
-            } catch (e: okio.IOException) {
+            } catch (e: IOException) {
                 e.printStackTrace()
                 emit(Resource.Error(message = ERROR_LOADING_TASKS))
                 return@flow

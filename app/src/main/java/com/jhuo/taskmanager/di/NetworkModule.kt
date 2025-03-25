@@ -37,7 +37,6 @@ object NetworkModule {
             .build()
     }
 
-    // Retrofit instance for Auth API endpoints (login)
     @Singleton
     @Provides
     @Named("LoginRetrofit")
@@ -48,7 +47,6 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    // Retrofit instance for Refresh API endpoints
     @Singleton
     @Provides
     @Named("RefreshRetrofit")
@@ -59,19 +57,16 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    // Provide AuthApiService
     @Singleton
     @Provides
     fun provideAuthApiService(@Named("LoginRetrofit") retrofit: Retrofit): AuthApiService =
         retrofit.create(AuthApiService::class.java)
 
-    // Provide RefreshTokenApiService
     @Singleton
     @Provides
     fun provideRefreshTokenApiService(@Named("RefreshRetrofit") retrofit: Retrofit): RefreshTokenApiService =
         retrofit.create(RefreshTokenApiService::class.java)
 
-    // Provide OkHttpClient for Task Manager API endpoints with interceptor and authenticator
     @Singleton
     @Provides
     @Named("TaskManagerOkHttpClient")
@@ -79,9 +74,6 @@ object NetworkModule {
         authInterceptor: AuthInterceptor,
         tokenAuthenticator: TokenAuthenticator
     ): OkHttpClient {
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
@@ -93,7 +85,6 @@ object NetworkModule {
     }
 
 
-    // Retrofit instance for Task Manager API endpoints
     @Singleton
     @Provides
     @Named("TaskManagerRetrofit")

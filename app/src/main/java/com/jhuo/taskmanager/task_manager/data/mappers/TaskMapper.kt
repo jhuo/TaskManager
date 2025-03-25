@@ -6,6 +6,7 @@ import com.jhuo.taskmanager.task_manager.data.remote.model.TaskRequest
 import com.jhuo.taskmanager.task_manager.domain.model.Task
 import com.jhuo.taskmanager.task_manager.presentation.TaskStatus
 import com.jhuo.taskmanager.task_manager.presentation.util.DateUtils
+import com.jhuo.taskmanager.task_manager.presentation.util.DateUtils.convertToUiFormat
 
 fun TaskDto.toLocalEntity(): TaskEntity = TaskEntity(
     id = this.id,
@@ -24,10 +25,10 @@ fun TaskEntity.toTaskUI(): Task = Task(
     name = name,
     description = description,
     status = TaskStatus.fromStatusValue(status),
-    dueDate = dueDate,
+    dueDate = convertToUiFormat(dueDate),
     createdBy = createdBy,
-    createdAt = createdAt,
-    updatedAt = updatedAt,
+    createdAt = convertToUiFormat(createdAt),
+    updatedAt = convertToUiFormat(updatedAt),
     id = id
 )
 

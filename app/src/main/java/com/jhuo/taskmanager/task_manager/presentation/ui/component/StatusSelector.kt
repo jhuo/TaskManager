@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.*
@@ -38,7 +38,7 @@ fun StatusSelector(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .background(if (isSelected) Color(0xFFDDE5C7) else Color.Transparent)
+                    .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
                     .clickable { onStatusSelected(status) }
                     .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center

@@ -22,6 +22,7 @@ fun DueDatePicker(
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     var isDueDateEnabled by remember { mutableStateOf(!selectedDate.isNullOrEmpty()) }
+    val dateFormatter = remember { SimpleDateFormat("MMM dd yyyy", Locale.getDefault()) }
 
     Column {
         Row(
@@ -72,7 +73,7 @@ fun DueDatePicker(
             val datePickerDialog = DatePickerDialog(
                 context,
                 { _, selectedYear, selectedMonth, selectedDay ->
-                    val formattedDate = SimpleDateFormat("MMM dd yyyy", Locale.getDefault()).format(
+                    val formattedDate = dateFormatter.format(
                         Calendar.getInstance().apply {
                             set(selectedYear, selectedMonth, selectedDay)
                         }.time
