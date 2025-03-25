@@ -44,25 +44,40 @@ fun TaskItem(
             .fillMaxWidth()
             .padding(8.dp)
             .clickable(onClick = onExpand),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 StatusIcon(status = task.status)
-                Text(task.name, Modifier.weight(1f))
+                Text(
+                    text = task.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
+                )
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit",
-                    modifier = Modifier.clickable(onClick = onEdit).padding(8.dp)
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .clickable(onClick = onEdit)
+                        .padding(8.dp)
                 )
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
-                    modifier = Modifier.clickable(onClick = onDelete).padding(8.dp)
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .clickable(onClick = onDelete)
+                        .padding(8.dp)
                 )
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = if (expanded) "Collapse" else "Expand",
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }

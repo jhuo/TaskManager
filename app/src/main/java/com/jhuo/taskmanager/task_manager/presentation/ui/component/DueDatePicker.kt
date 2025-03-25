@@ -34,6 +34,7 @@ fun DueDatePicker(
             Text(
                 text = "Due date",
                 style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
             Switch(
@@ -43,7 +44,13 @@ fun DueDatePicker(
                     if (!isEnabled) {
                         onDateSelected("")
                     }
-                }
+                },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             )
         }
 
@@ -55,10 +62,10 @@ fun DueDatePicker(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(24.dp))
                     .border(1.dp, Color.Gray, RoundedCornerShape(24.dp)),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.Black
-                )
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
             ) {
                 Text(text = selectedDate?.ifEmpty { "Select Due Date" } ?: "Select Due Date")
             }

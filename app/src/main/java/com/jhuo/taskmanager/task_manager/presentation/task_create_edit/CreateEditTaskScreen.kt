@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -82,12 +84,18 @@ fun CreateEditTaskScreen(
 
             OutlinedTextField(
                 value = state.task.name,
-                onValueChange = {
-                    viewModel.onEvent(TaskCreateEditUiEvent.Input.EnterName(it))
-                },
+                onValueChange = { viewModel.onEvent(TaskCreateEditUiEvent.Input.EnterName(it)) },
                 maxLines = 4,
                 isError = nameError != null,
                 label = { Text("Task Name") },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -104,6 +112,14 @@ fun CreateEditTaskScreen(
                 },
                 isError = nameError != null,
                 label = { Text("Description") },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
@@ -114,7 +130,9 @@ fun CreateEditTaskScreen(
 
             Text("Status", style = MaterialTheme.typography.bodyLarge)
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 24.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp)
             ) {
                 StatusSelector(
                     selectedStatus = state.task.status,
@@ -142,6 +160,12 @@ fun CreateEditTaskScreen(
                 onClick = { viewModel.onEvent(TaskCreateEditUiEvent.ButtonClick.Save) },
                 enabled = nameError == null && descriptionError == null &&
                         state.task.name.isNotEmpty() && state.task.description.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Save Task")

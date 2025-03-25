@@ -1,4 +1,3 @@
-import android.R.attr.fontWeight
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,7 +30,8 @@ fun StatusSelector(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(50.dp))
-            .border(1.dp, Color.Gray, RoundedCornerShape(50.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(50.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
         statuses.forEachIndexed { index, status ->
             val isSelected = status == selectedStatus
@@ -63,7 +63,7 @@ fun StatusSelector(
             }
             if (index < statuses.size - 1) {
                 VerticalDivider(
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.outline,
                     modifier = Modifier
                         .height(40.dp)
                         .width(1.dp)

@@ -12,17 +12,22 @@ val AccentYellow = Color(0xFFDDE5B6)  // FAB & highlight
 val TaskBorder = Color(0xFFC5C5A5)    // Task list border color
 val TaskText = Color(0xFF5A5A3A)      // Task text color
 val ButtonSelected = Color(0xFF99A97B) // Selected button
-val ButtonUnselected = Color(0xFFEFEFD0) // Unselected button
 
 private val LightColorScheme = lightColorScheme(
     primary = OliveGreen,
     secondary = AccentYellow,
+    tertiary = ButtonSelected,
     background = LightBeige,
     surface = LightBeige,
     onPrimary = Color.White,
     onSecondary = OliveGreen,
+    onTertiary = OliveGreen,
     onBackground = TaskText,
-    onSurface = TaskText
+    onSurface = TaskText,
+    surfaceVariant = Color(0xFFF0EED9),
+    outline = TaskBorder,
+    primaryContainer = Color(0xFFE4E8C4),
+    secondaryContainer = Color(0xFFF0F5D6)
 )
 
 @Composable
