@@ -2,6 +2,8 @@ package com.jhuo.taskmanager.di
 
 import com.jhuo.taskmanager.auth.domain.repository.AuthRepository
 import com.jhuo.taskmanager.auth.data.repository.AuthRepositoryImpl
+import com.jhuo.taskmanager.task_manager.data.ConnectivityObserver
+import com.jhuo.taskmanager.task_manager.data.NetworkConnectivityObserver
 import com.jhuo.taskmanager.task_manager.data.repository.TaskRepositoryImpl
 import com.jhuo.taskmanager.task_manager.domain.repository.TaskRepository
 import dagger.Binds
@@ -24,4 +26,11 @@ abstract class RepositoryModule {
     abstract fun bindTaskRepository(
         taskRepositoryImpl: TaskRepositoryImpl
     ): TaskRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindConnectivityObserver(
+        connectivityObserver: NetworkConnectivityObserver
+    ): ConnectivityObserver
+
 }

@@ -3,7 +3,6 @@ package com.jhuo.taskmanager.auth.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jhuo.taskmanager.auth.data.remote.model.AuthResult
-import com.jhuo.taskmanager.auth.data.repository.TokenManager
 import com.jhuo.taskmanager.auth.domain.repository.AuthRepository
 import com.jhuo.taskmanager.auth.presentation.util.AuthStrings.AUTH_INVALID_ERROR
 import com.jhuo.taskmanager.auth.presentation.util.AuthStrings.AUTH_UNAUTHORIZED_ERROR
@@ -21,8 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    private val tokenManager: TokenManager
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(AuthScreenState())
     val state: StateFlow<AuthScreenState> = _state.stateIn(
@@ -64,13 +62,4 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
-
-    fun logout() {
-        tokenManager.clearTokens()
-    }
-
-    fun isLoggedIn(): Boolean {
-        return tokenManager.getIdToken() != null && !tokenManager.isAccessTokenExpired()
-    }
-
 }

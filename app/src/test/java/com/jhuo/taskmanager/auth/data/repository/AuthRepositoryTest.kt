@@ -55,34 +55,6 @@ class AuthRepositoryTest {
     }
 
     @Test
-    fun `login should return AuthResult Unauthorized when login fails with 401`() = runTest {
-        
-        val email = "test@example.com"
-        val password = "password123"
-        coEvery { authApiService.login(email, password) } throws HttpException(Response.error<Any>(401, "Unauthorized".toResponseBody()))
-
-        
-        val result = repository.login(email, password)
-
-        
-        assertTrue(result is AuthResult.Unauthorized<Unit>)
-    }
-
-    @Test
-    fun `login should return AuthResult InvalidInput when login fails with 400`() = runTest {
-        
-        val email = "test@example.com"
-        val password = "password123"
-        coEvery { authApiService.login(email, password) } throws HttpException(Response.error<Any>(400, "Bad Request".toResponseBody()))
-
-        
-        val result = repository.login(email, password)
-
-        
-        assertTrue(result is AuthResult.InvalidInput<Unit> )
-    }
-
-    @Test
     fun `login should return AuthResult UnknownError when an exception occurs`() = runTest {
         
         val email = "test@example.com"

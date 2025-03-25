@@ -5,8 +5,9 @@ import com.jhuo.taskmanager.task_manager.data.remote.model.TaskDto
 import com.jhuo.taskmanager.task_manager.data.remote.model.TaskRequest
 import com.jhuo.taskmanager.task_manager.domain.model.Task
 import com.jhuo.taskmanager.task_manager.presentation.TaskStatus
-import com.jhuo.taskmanager.task_manager.presentation.util.DateUtils
+import com.jhuo.taskmanager.task_manager.presentation.util.DateUtils.convertToApiFormat
 import com.jhuo.taskmanager.task_manager.presentation.util.DateUtils.convertToUiFormat
+import com.jhuo.taskmanager.task_manager.presentation.util.DateUtils.formatCreateTimeToEntity
 
 fun TaskDto.toLocalEntity(): TaskEntity = TaskEntity(
     id = this.id,
@@ -32,9 +33,43 @@ fun TaskEntity.toTaskUI(): Task = Task(
     id = id
 )
 
+fun TaskEntity.toTaskDto() = TaskDto(
+    projectId = projectId,
+    name = name,
+    description = description,
+    status = status,
+    dueDate = dueDate,
+    createdBy = createdBy,
+    createdAt = convertToUiFormat(createdAt),
+    updatedAt = convertToUiFormat(updatedAt),
+    id = id
+)
+
+
+fun TaskEntity.toTaskRequest() = TaskRequest(
+    name = name,
+    description = description,
+    status = status,
+    dueDate = convertToUiFormat(dueDate),
+)
+
 fun Task.toTaskRequest() = TaskRequest (
     name = name,
     description = description,
     status = status.value,
-    dueDate = DateUtils.convertToApiFormat(dueDate)
+    dueDate = convertToApiFormat(dueDate)
+)
+
+fun Task.toLocalEntity() = TaskEntity(
+    name = name,
+    description = description,
+    status = status.value,
+    dueDate = convertToApiFormat(dueDate),
+    createdBy = createdBy,
+    createdAt = formatCreateTimeToEntity(createdAt),
+    updatedAt = convertToApiFormat(updatedAt),
+    projectId = projectId,
+    id = id ?: 0,
+    isSynced = isSynced,
+    isDeleted = isDelete,
 )

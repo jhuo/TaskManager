@@ -11,5 +11,8 @@ data class Task(
     val createdBy: String?,
     val createdAt: String?,
     val updatedAt: String?,
-    val id: Int?
+    val id: Int?,
+    val isSynced: Boolean = false,
+    val isDelete: Boolean = false,
+    val lastUpdated: Long = System.currentTimeMillis()
 )

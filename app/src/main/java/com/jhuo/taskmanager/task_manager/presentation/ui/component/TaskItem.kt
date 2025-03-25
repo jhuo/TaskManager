@@ -132,7 +132,7 @@ fun StatusIcon(status: TaskStatus) {
         Icon(
             painter = painterResource(
                 id = when (status) {
-                    TaskStatus.PENDING -> R.drawable.ic_pending // Your custom icon
+                    TaskStatus.PENDING -> R.drawable.ic_pending
                     TaskStatus.IN_PROGRESS -> R.drawable.ic_in_progress
                     TaskStatus.COMPLETED -> R.drawable.ic_completed
                 }

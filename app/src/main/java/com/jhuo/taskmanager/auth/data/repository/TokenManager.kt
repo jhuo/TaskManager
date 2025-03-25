@@ -25,8 +25,6 @@ class TokenManager @Inject constructor(private val prefs: SharedPreferences) {
 
     fun getIdToken(): String? = prefs.getString(KEY_ID_TOKEN, null)
     fun getRefreshToken(): String? = prefs.getString(KEY_REFRESH_TOKEN, null)
-    fun isAccessTokenExpired(): Boolean =
-        System.currentTimeMillis() >= prefs.getLong(KEY_EXPIRES_AT, 0)
     fun clearTokens() {
         prefs.edit().clear().apply()
     }

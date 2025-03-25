@@ -19,7 +19,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun login(email: String, password: String): AuthResult<Unit> {
         return try {
-            val response = authApiService.login("jerry08huo+1@yahoo.com", "Test@1234") //.login(email, password)
+            val response = authApiService.login(email, password) //.login("jerry08huo+1@yahoo.com", "Test@1234") //.login(email, password)
             tokenManager.saveAuthTokens(response.idToken, response.refreshToken, response.expiresIn?.toLong())
             AuthResult.Authorized()
         } catch(e: HttpException) {

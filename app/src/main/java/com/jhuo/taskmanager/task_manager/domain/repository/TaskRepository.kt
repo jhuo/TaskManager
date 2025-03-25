@@ -5,7 +5,7 @@ import com.jhuo.taskmanager.task_manager.domain.model.Task
 import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
-    suspend fun getAllTasks(forceFetchFromRemote: Boolean = false): Flow<Resource<List<Task>>>
+    fun getAllTasks(forceFetchFromRemote: Boolean = false): Flow<Resource<List<Task>>>
     suspend fun createTask(task: Task): Resource<Task>
     suspend fun deleteTask(task: Task): Resource<Task>
     suspend fun getSingleTaskById(id: Int): Resource<Task?>

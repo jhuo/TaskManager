@@ -22,7 +22,7 @@ fun DueDatePicker(
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     var isDueDateEnabled by remember { mutableStateOf(!selectedDate.isNullOrEmpty()) }
-    val dateFormatter = remember { SimpleDateFormat("MMM dd yyyy", Locale.getDefault()) }
+    val dateFormatter = remember { SimpleDateFormat("yyyy MMM dd 'at' HH:mm", Locale.getDefault()) }
 
     Column {
         Row(

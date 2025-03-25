@@ -1,14 +1,11 @@
 package com.jhuo.taskmanager.task_manager.presentation.task_list
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jhuo.taskmanager.task_manager.data.ConnectivityObserver
 import com.jhuo.taskmanager.task_manager.data.remote.util.Resource
 import com.jhuo.taskmanager.task_manager.domain.model.Task
 import com.jhuo.taskmanager.task_manager.domain.repository.TaskRepository
-import com.jhuo.taskmanager.task_manager.domain.util.SortingDirection
-import com.jhuo.taskmanager.task_manager.domain.util.TaskOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -21,23 +18,24 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class TaskViewModel @Inject constructor(
-    private val repository: TaskRepository
+    private val repository: TaskRepository,
+    private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<TaskState>(TaskState(taskOrder = TaskOrder.Name(SortingDirection.Down)))
+    private val _state = MutableStateFlow<TaskState>(TaskState())
     val state: StateFlow<TaskState> = _state.asStateFlow()
 
     private val _uiEvent = Channel<TaskListEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    private var undoTaskItem: Task? = null
+    var undoTaskItem: Task? = null
     private var getTaskItemJob: Job? = null
 
     init {
-        onEvent(TaskListEvent.LoadTasks)
+        getAllTaskItems()
+        observeConnectivity()
     }
 
     fun onEvent(event: TaskListEvent) {
@@ -69,14 +67,26 @@ class TaskViewModel @Inject constructor(
         }
     }
 
-    fun getAllTaskItems() {
+    private fun observeConnectivity() {
+        viewModelScope.launch {
+            connectivityObserver.observe().collect { status ->
+                _state.update { it.copy(networkStatus = status) }
+                if (status == ConnectivityObserver.Status.Available) {
+                    getAllTaskItems(true)
+                    _uiEvent.send(TaskListEvent.ShowSnackBar("Syncing tasks..."))
+                }
+            }
+        }
+    }
+
+    fun getAllTaskItems(forceRefresh: Boolean = false) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             repository.getAllTasks().collectLatest { result ->
                 when (result) {
                     is Resource.Error -> {
                         _state.update { it.copy(isLoading = false) }
-                        _uiEvent.send(TaskListEvent.ShowSnackBar("Failed to load tasks: ${result.message}"))
+                        _uiEvent.send(TaskListEvent.ShowSnackBar("Failed to get tasks: ${result.message}"))
                     }
 
                     is Resource.Loading -> {

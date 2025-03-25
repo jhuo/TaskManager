@@ -56,7 +56,7 @@ class CreateEditTaskViewModel @Inject constructor(
     fun onEvent(event: TaskCreateEditUiEvent){
         when(event){
             Navigate.TaskList -> {
-                viewModelScope.launch (){
+                viewModelScope.launch {
                     _event.emit(Navigate.TaskList)
                 }
             }

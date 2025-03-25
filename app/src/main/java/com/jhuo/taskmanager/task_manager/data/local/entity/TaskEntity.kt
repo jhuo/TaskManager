@@ -14,4 +14,6 @@ data class TaskEntity(
     val createdAt: String?,
     val updatedAt: String?,
     @PrimaryKey val id: Int,
+    val isSynced: Boolean = true,
+    val isDeleted: Boolean = false,
 )

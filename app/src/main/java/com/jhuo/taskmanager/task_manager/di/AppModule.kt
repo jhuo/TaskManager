@@ -1,5 +1,6 @@
 package com.jhuo.taskmanager.task_manager.di
 
+import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.jhuo.taskmanager.task_manager.data.local.TaskDatabase
@@ -17,6 +18,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideApplicationContext(application: Application): Context {
+        return application.applicationContext
+    }
+
     @Singleton
     @Provides
     fun provideTaskApiService(@Named("TaskManagerRetrofit") retrofit: Retrofit): TaskApiService =
