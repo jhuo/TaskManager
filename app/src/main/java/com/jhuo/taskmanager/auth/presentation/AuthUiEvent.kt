@@ -13,4 +13,7 @@ sealed class AuthUiEvent {
         data object Home: AuthUiEvent()
     }
     data class ShowSnackBar(val message: String): AuthUiEvent()
+    data object ClearEmailError: AuthUiEvent()
+    data object ClearPasswordError: AuthUiEvent()
+
 }
