@@ -21,7 +21,9 @@ fun DueDatePicker(
     onDateSelected: (String) -> Unit
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
-    var isDueDateEnabled by remember { mutableStateOf(!selectedDate.isNullOrEmpty()) }
+    var isDueDateEnabled by remember (selectedDate) {
+        mutableStateOf(!selectedDate.isNullOrEmpty())
+    }
     val dateFormatter = remember { SimpleDateFormat("yyyy MMM dd 'at' HH:mm", Locale.getDefault()) }
 
     Column {
@@ -40,8 +42,11 @@ fun DueDatePicker(
             Switch(
                 checked = isDueDateEnabled,
                 onCheckedChange = { isEnabled ->
-                    isDueDateEnabled = isEnabled
-                    if (!isEnabled) {
+                    if (isEnabled) {
+                        if (selectedDate.isNullOrEmpty()) {
+                            showDatePicker = true
+                        }
+                    } else {
                         onDateSelected("")
                     }
                 },
@@ -54,7 +59,7 @@ fun DueDatePicker(
             )
         }
 
-        if (isDueDateEnabled) {
+        if (isDueDateEnabled || !selectedDate.isNullOrEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = { showDatePicker = true },
@@ -67,7 +72,7 @@ fun DueDatePicker(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 ),
             ) {
-                Text(text = selectedDate?.ifEmpty { "Select Due Date" } ?: "Select Due Date")
+                Text(text = selectedDate?: "Select due date")
             }
         }
 

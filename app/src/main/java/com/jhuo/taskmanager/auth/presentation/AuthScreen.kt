@@ -1,7 +1,5 @@
 package com.jhuo.taskmanager.auth.presentation
 
-import android.R.attr.label
-import android.R.attr.singleLine
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -43,7 +41,7 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
-                AuthUiEvent.Navigate.Home -> onLoginSuccess()
+                AuthUiEvent.Navigate.TaskList -> onLoginSuccess()
                 is AuthUiEvent.ShowSnackBar -> {
                     snackbarHostState.showSnackbar(event.message)
                 }

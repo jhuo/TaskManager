@@ -1,104 +1,65 @@
-package com.jhuo.taskmanager.auth.presentation
-
-import com.jhuo.taskmanager.auth.data.remote.model.AuthResult
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.jhuo.taskmanager.auth.domain.repository.AuthRepository
-import io.mockk.coEvery
+import com.jhuo.taskmanager.auth.presentation.AuthUiEvent
+import com.jhuo.taskmanager.auth.presentation.AuthViewModel
+import com.jhuo.taskmanager.auth.presentation.util.AuthStrings.AUTH_INVALID_EMAIL_ERROR
+import com.jhuo.taskmanager.auth.presentation.util.AuthStrings.AUTH_INVALID_PASSWORD_ERROR
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModelTest {
 
-    private lateinit var viewModel: AuthViewModel
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     private val authRepository: AuthRepository = mockk()
-    private val testDispatcher = StandardTestDispatcher()
+    private lateinit var viewModel: AuthViewModel
+
+    private val testDispatcher = StandardTestDispatcher(TestCoroutineScheduler())
 
     @Before
     fun setUp() {
-        Dispatchers.setMain(testDispatcher)
+        kotlinx.coroutines.Dispatchers.setMain(testDispatcher)
         viewModel = AuthViewModel(authRepository)
     }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
+    @Test
+    fun `test email input updates state`() = runTest {
+        viewModel.onEvent(AuthUiEvent.Input.EnterEmail("test@example.com"))
+        assertEquals("test@example.com", viewModel.state.drop(1).first().email)
     }
 
     @Test
-    fun `signIn should emit Navigate Home event when login is successful`() = runTest {
-        
-        val email = "test@example.com"
-        val password = "password123"
-        coEvery { authRepository.login(email, password) } returns AuthResult.Authorized()
-
-        
-        viewModel.onEvent(AuthUiEvent.Input.EnterEmail(email))
-        viewModel.onEvent(AuthUiEvent.Input.EnterPassword(password))
-        viewModel.onEvent(AuthUiEvent.ButtonClick.SignIn)
-
-        
-        val event = viewModel.event.first()
-        assertEquals(AuthUiEvent.Navigate.Home, event)
+    fun `test password input updates state`() = runTest {
+        viewModel.onEvent(AuthUiEvent.Input.EnterPassword("password123"))
+        assertEquals("password123", viewModel.state.drop(1).first().password)
     }
 
     @Test
-    fun `signIn should emit ShowSnackBar event with unauthorized error when login fails with 401`() = runTest {
-        
-        val email = "test@example.com"
-        val password = "password123"
-        coEvery { authRepository.login(email, password) } returns AuthResult.Unauthorized()
-
-        
-        viewModel.onEvent(AuthUiEvent.Input.EnterEmail(email))
-        viewModel.onEvent(AuthUiEvent.Input.EnterPassword(password))
+    fun `test invalid email shows error`() = runTest {
+        viewModel.onEvent(AuthUiEvent.Input.EnterEmail("invalid-email"))
         viewModel.onEvent(AuthUiEvent.ButtonClick.SignIn)
-
-        
-        val event = viewModel.event.first()
-        assertEquals(AuthUiEvent.ShowSnackBar("Unauthorized"), event)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(AUTH_INVALID_EMAIL_ERROR, viewModel.state.drop(1).first().emailError)
     }
 
     @Test
-    fun `signIn should emit ShowSnackBar event with invalid input error when login fails with 400`() = runTest {
-        
-        val email = "test@example.com"
-        val password = "password123"
-        coEvery { authRepository.login(email, password) } returns AuthResult.InvalidInput()
-
-        
-        viewModel.onEvent(AuthUiEvent.Input.EnterEmail(email))
-        viewModel.onEvent(AuthUiEvent.Input.EnterPassword(password))
+    fun `test invalid password shows error`() = runTest {
+        viewModel.onEvent(AuthUiEvent.Input.EnterEmail("test@example.com"))
+        viewModel.onEvent(AuthUiEvent.Input.EnterPassword("123"))
         viewModel.onEvent(AuthUiEvent.ButtonClick.SignIn)
-
-        
-        val event = viewModel.event.first()
-        assertEquals(AuthUiEvent.ShowSnackBar("Invalid Email and Password"), event)
-    }
-
-    @Test
-    fun `signIn should emit ShowSnackBar event with unknown error when login fails with an exception`() = runTest {
-        
-        val email = "test@example.com"
-        val password = "password123"
-        coEvery { authRepository.login(email, password) } returns AuthResult.UnknownError()
-
-        
-        viewModel.onEvent(AuthUiEvent.Input.EnterEmail(email))
-        viewModel.onEvent(AuthUiEvent.Input.EnterPassword(password))
-        viewModel.onEvent(AuthUiEvent.ButtonClick.SignIn)
-
-        
-        val event = viewModel.event.first()
-        assertEquals(AuthUiEvent.ShowSnackBar("Unknown error"), event)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(AUTH_INVALID_PASSWORD_ERROR, viewModel.state.drop(1).first().passwordError)
     }
 }

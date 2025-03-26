@@ -55,10 +55,11 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun validateEmail(email: String): String? {
-        return if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
+        return if (email.isBlank() || !emailRegex.matches(email)) {
             AUTH_INVALID_EMAIL_ERROR
         } else {
-           null
+            null
         }
     }
 
@@ -87,7 +88,7 @@ class AuthViewModel @Inject constructor(
             _state.update { it.copy(isLoading = false) }
             when(result) {
                 is AuthResult.Authorized -> {
-                    _event.emit(AuthUiEvent.Navigate.Home)
+                    _event.emit(AuthUiEvent.Navigate.TaskList)
                     _state.update { it.copy(password = "") }
                 }
                 is AuthResult.Unauthorized -> _event.emit(AuthUiEvent.ShowSnackBar(AUTH_UNAUTHORIZED_ERROR))

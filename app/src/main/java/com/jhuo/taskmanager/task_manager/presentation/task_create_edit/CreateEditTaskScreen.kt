@@ -45,7 +45,6 @@ fun CreateEditTaskScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var selectedDate by remember { mutableStateOf(state.task.dueDate) }
     val nameError by remember(state.nameError) { derivedStateOf { state.nameError } }
     val descriptionError by remember(state.descriptionError) { derivedStateOf { state.descriptionError } }
 
@@ -147,9 +146,8 @@ fun CreateEditTaskScreen(
 
             DueDatePicker(
                 context = LocalContext.current,
-                selectedDate = selectedDate,
+                selectedDate = state.task.dueDate,
                 onDateSelected = { date ->
-                    selectedDate = date
                     viewModel.onEvent(TaskCreateEditUiEvent.Input.EnterDueDate(date))
                 },
             )
